@@ -1,14 +1,20 @@
 package com.task.imager;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -19,60 +25,32 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "DebugLogs";
-    private ImageView random_image;
-    private TextView textView;
-    private static final String CLIENT_ID = "xEBs2kNeIhxsB2NWUEiOKmWSOM5gZXamsjitk3j1NPc";
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        random_image = findViewById(R.id.random_img);
-        Button random_button = findViewById(R.id.random_image_btn);
-        textView = findViewById(R.id.text_view);
-        getRandomImage();
-
-        random_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getRandomImage();
-            }
-        });
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
     }
 
-    public void getRandomImage(){
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.unsplash.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        APIService apiService = retrofit.create(APIService.class);
-        apiService.getRandomPhoto(CLIENT_ID).enqueue(new Callback<Root>() {
-            @Override
-            public void onResponse(Call<Root> call, Response<Root> response) {
-                if(response.isSuccessful()){
-                    Log.d(TAG, "MainActivity: onResponse: isSuccessful: " + response.body().urls.thumb);
-                    Glide.with(getBaseContext())
-                            .load(response.body().urls.small)
-                            .into(random_image);
-                } else {
-                    switch(response.code()) {
-                        case 404:
-                            textView.setText("Страница не найдена");
-                            break;
-                        case 500:
-                            textView.setText("Ошибка на сервере");
-                            break;
-                        case 403:
-                            textView.setText("Превышенно количество запросов за 1 час");
-                    }
-                }
-            }
-            @Override
-            public void onFailure(Call<Root> call, Throwable t) {
-                Log.d(TAG, "MainActivity: onFailure: " + t.toString());
-            }
-        });
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                navController.navigate(R.id.action_RandomImageFragment_to_ImageSearchFragment);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
