@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_RandomImageFragment_to_ImageSearchFragment"
             app:destination="@id/ImageSearchFragment"/>
+        <action
+            android:id="@+id/action_RandomImageFragment_to_CollectionsFragment"
+            app:destination="@id/CollectionsFragment"/>
     </fragment>
     <fragment
         android:id="@+id/ImageSearchFragment"
@@ -23,5 +26,14 @@
         <action
             android:id="@+id/action_ImageSearchFragment_to_RandomImageFragment"
             app:destination="@id/RandomImageFragment"/>
+        <action
+            android:id="@+id/action_ImageSearchFragment_to_ImageSearchFragment"
+            app:destination="@id/ImageSearchFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/CollectionsFragment"
+        android:name="com.task.imager.CollectionsFragment"
+        android:label="CollectionsFragment"
+        tools:layout="@layout/fragment_collections">
     </fragment>
 </navigation>

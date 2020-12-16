@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,10 +22,11 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RandomImageFragment extends Fragment {
-    private static final String TAG = "DebugLogs";
-    private ImageView random_image;
+    public static final String TAG = "DebugLogs";
+    private ImageButton random_image;
     private TextView textView;
-    private static final String CLIENT_ID = "xEBs2kNeIhxsB2NWUEiOKmWSOM5gZXamsjitk3j1NPc";
+    public static final String CLIENT_ID = "xEBs2kNeIhxsB2NWUEiOKmWSOM5gZXamsjitk3j1NPc";
+    private Root currentRoot;
 
     public RandomImageFragment() {
     }
@@ -49,16 +51,20 @@ public class RandomImageFragment extends Fragment {
         Button random_button = view.findViewById(R.id.random_image_btn);
         textView = view.findViewById(R.id.text_view);
         //getRandomImage();
-
         random_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getRandomImage();
             }
         });
+        random_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getInfo(currentRoot);
+            }
+        });
         return view;
     }
-
     public void getRandomImage(){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
@@ -69,9 +75,10 @@ public class RandomImageFragment extends Fragment {
             @Override
             public void onResponse(Call<Root> call, Response<Root> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "MainActivity: onResponse: isSuccessful: " + response.body().urls.thumb);
+                    Log.d(TAG, "RandomImageFragment: onResponse: isSuccessful: " + response.body().urls.thumb);
+                    currentRoot = response.body();
                     Glide.with(getContext())
-                            .load(response.body().urls.small)
+                            .load(currentRoot.urls.small)
                             .into(random_image);
                 } else {
                     switch(response.code()) {
@@ -88,8 +95,19 @@ public class RandomImageFragment extends Fragment {
             }
             @Override
             public void onFailure(Call<Root> call, Throwable t) {
-                Log.d(TAG, "MainActivity: onFailure: " + t.toString());
+                Log.d(TAG, "RandomImageFragment: onFailure: " + t.toString());
             }
         });
     }
+
+    private void getInfo(Root currentRoot) {
+        DialogInfo dialogInfo = DialogInfo.newInstance(
+                currentRoot.height,
+                currentRoot.width,
+                currentRoot.description,
+                currentRoot.urls.full
+        );
+        dialogInfo.show(getActivity().getSupportFragmentManager(), "dlg");
+    }
+
 }

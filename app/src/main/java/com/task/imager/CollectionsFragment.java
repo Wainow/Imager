@@ -1,8 +1,9 @@
 package com.task.imager;
-
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,18 +27,19 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.task.imager.RandomImageFragment.CLIENT_ID;
 import static com.task.imager.RandomImageFragment.TAG;
 
-public class ImageSearchFragment extends Fragment {
+public class CollectionsFragment extends Fragment {
     private RecyclerView recyclerView;
-    public SearchAdapter mAdapter;
-    private ArrayList<Root> roots = new ArrayList<>();
+    private CollectionAdapter mAdapter;
+    private ArrayList<Collection> collections;
+    private NavController navController;
 
-    public ImageSearchFragment() {
+    public CollectionsFragment() {
     }
 
-    public static ImageSearchFragment newInstance(String query) {
-        ImageSearchFragment fragment = new ImageSearchFragment();
+
+    public static CollectionsFragment newInstance(String param1, String param2) {
+        CollectionsFragment fragment = new CollectionsFragment();
         Bundle args = new Bundle();
-        args.putString("query", query);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,28 +52,27 @@ public class ImageSearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_image_search, container, false);
+        View view = inflater.inflate(R.layout.fragment_collections, container, false);
 
-        recyclerView =  view.findViewById(R.id.search_recycler);
+        recyclerView =  view.findViewById(R.id.collections_recycler);
 
-        if(getArguments() != null)
-            searchKeyword(getArguments().getString("query"));
+        getCollections();
+
         return view;
     }
 
-    private void searchKeyword(String query) {
-        Log.d(TAG, "ImageSearchFragment: searchKeyword: query: " + query);
+    private void getCollections() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         APIService apiService = retrofit.create(APIService.class);
-        apiService.searchKeyword(CLIENT_ID, query).enqueue(new Callback<Results>() {
+        apiService.getCollections(CLIENT_ID).enqueue(new Callback<List<Collection>>() {
             @Override
-            public void onResponse(Call<Results> call, Response<Results> response) {
+            public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "ImageSearchFragment: onResponse: isSuccessful: " + response.body().results.size());
-                    roots = response.body().results;
+                    Log.d(TAG, "CollectionFragment: onResponse: isSuccessful: " + response.body().size());
+                    collections = (ArrayList<Collection>) response.body();
                     setRecyclerView();
                 } else {
                     switch(response.code()) {
@@ -88,16 +89,16 @@ public class ImageSearchFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<Results> call, Throwable t) {
-                Log.d(TAG, "ImageSearchFragment: onFailure: " + t.toString());
+            public void onFailure(Call<List<Collection>> call, Throwable t) {
+                Log.d(TAG, "CollectionFragment: onFailure: " + t.toString());
             }
         });
     }
 
     private void setRecyclerView() {
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        mAdapter = new SearchAdapter(getContext(), roots);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mAdapter = new CollectionAdapter(getContext(), collections, getChildFragmentManager());
         recyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }

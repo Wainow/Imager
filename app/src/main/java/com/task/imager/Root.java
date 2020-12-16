@@ -12,7 +12,7 @@ public class Root {
     public int height;
     public String color;
     public String blur_hash;
-    public Object description;
+    public String description;
     public String alt_description;
     public Urls urls;
     public Links links;

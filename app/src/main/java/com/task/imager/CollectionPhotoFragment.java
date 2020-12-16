@@ -4,15 +4,12 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,19 +22,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.task.imager.RandomImageFragment.CLIENT_ID;
 import static com.task.imager.RandomImageFragment.TAG;
-
-public class ImageSearchFragment extends Fragment {
+public class CollectionPhotoFragment extends Fragment {
     private RecyclerView recyclerView;
-    public SearchAdapter mAdapter;
-    private ArrayList<Root> roots = new ArrayList<>();
+    private SearchAdapter mAdapter;
+    private ArrayList<Root> roots;
 
-    public ImageSearchFragment() {
+    public CollectionPhotoFragment() {
     }
-
-    public static ImageSearchFragment newInstance(String query) {
-        ImageSearchFragment fragment = new ImageSearchFragment();
+    public static CollectionPhotoFragment newInstance(int id) {
+        CollectionPhotoFragment fragment = new CollectionPhotoFragment();
         Bundle args = new Bundle();
-        args.putString("query", query);
+        args.putInt("id", id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,33 +40,33 @@ public class ImageSearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            getCollectionImage(getArguments().getInt("id"));
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_image_search, container, false);
-
-        recyclerView =  view.findViewById(R.id.search_recycler);
-
-        if(getArguments() != null)
-            searchKeyword(getArguments().getString("query"));
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_collection_photo, container, false);
+        recyclerView = view.findViewById(R.id.collection_photo_recycler);
         return view;
     }
 
-    private void searchKeyword(String query) {
-        Log.d(TAG, "ImageSearchFragment: searchKeyword: query: " + query);
+    private void getCollectionImage(int id) {
+        Log.d(TAG, "CollectionPhotoFragment: id: " + id);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         APIService apiService = retrofit.create(APIService.class);
-        apiService.searchKeyword(CLIENT_ID, query).enqueue(new Callback<Results>() {
+        apiService.getCollectionPhoto(id, CLIENT_ID).enqueue(new Callback<List<Root>>() {
             @Override
-            public void onResponse(Call<Results> call, Response<Results> response) {
+            public void onResponse(Call<List<Root>> call, Response<List<Root>> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "ImageSearchFragment: onResponse: isSuccessful: " + response.body().results.size());
-                    roots = response.body().results;
+                    Log.d(TAG, "ImageSearchFragment: onResponse: isSuccessful: " + response.body().size());
+                    roots = (ArrayList<Root>) response.body();
                     setRecyclerView();
                 } else {
                     switch(response.code()) {
@@ -88,7 +83,7 @@ public class ImageSearchFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<Results> call, Throwable t) {
+            public void onFailure(Call<List<Root>> call, Throwable t) {
                 Log.d(TAG, "ImageSearchFragment: onFailure: " + t.toString());
             }
         });
