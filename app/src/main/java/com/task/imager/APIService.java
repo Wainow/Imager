@@ -19,6 +19,13 @@ public interface APIService {
             @Query("query") String query
     );
 
+    @GET("/search/photos?")
+    Call<Results> searchKeywordPage(
+            @Query("client_id") String YOUR_ACCESS_KEY,
+            @Query("query") String query,
+            @Query("page") int page
+    );
+
     @GET("/collections?")
     Call<List<Collection>> getCollections(
             @Query("client_id") String YOUR_ACCESS_KEY

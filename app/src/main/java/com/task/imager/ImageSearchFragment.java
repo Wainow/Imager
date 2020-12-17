@@ -2,7 +2,10 @@ package com.task.imager;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +19,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,6 +34,8 @@ public class ImageSearchFragment extends Fragment {
     private RecyclerView recyclerView;
     public SearchAdapter mAdapter;
     private ArrayList<Root> roots = new ArrayList<>();
+
+    private PagingAdapter adapter;
 
     public ImageSearchFragment() {
     }
@@ -55,7 +61,8 @@ public class ImageSearchFragment extends Fragment {
         recyclerView =  view.findViewById(R.id.search_recycler);
 
         if(getArguments() != null)
-            searchKeyword(getArguments().getString("query"));
+            //searchKeyword(getArguments().getString("query"));
+            searchPagingKeyword(getArguments().getString("query"));
         return view;
     }
 
@@ -100,5 +107,42 @@ public class ImageSearchFragment extends Fragment {
         mAdapter = new SearchAdapter(getContext(), roots);
         recyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
+    }
+
+    private void searchPagingKeyword(String query){
+        // DataSource
+        DataSource dataSource = new DataSource(query);
+
+
+        // PagedList
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPageSize(3)
+                .build();
+
+        PagedList<Root> pagedList = new PagedList.Builder<>(dataSource, config)
+                .setFetchExecutor(Executors.newSingleThreadExecutor())
+                .setNotifyExecutor(new MainThreadExecutor())
+                .build();
+
+
+        // Adapter
+        adapter = new PagingAdapter(new DiffUtil.ItemCallback<Root>() {
+            @Override
+            public boolean areItemsTheSame(@NonNull Root oldItem, @NonNull Root newItem) {
+                return false;
+            }
+
+            @Override
+            public boolean areContentsTheSame(@NonNull Root oldItem, @NonNull Root newItem) {
+                return false;
+            }
+        });
+        adapter.submitList(pagedList);
+
+        // RecyclerView
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        recyclerView.setAdapter(adapter);
     }
 }
