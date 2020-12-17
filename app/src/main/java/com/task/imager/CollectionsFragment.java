@@ -1,9 +1,12 @@
 package com.task.imager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +20,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,9 +33,7 @@ import static com.task.imager.RandomImageFragment.TAG;
 
 public class CollectionsFragment extends Fragment {
     private RecyclerView recyclerView;
-    private CollectionAdapter mAdapter;
-    private ArrayList<Collection> collections;
-    private NavController navController;
+    private CollectionPagingAdapter adapter;
 
     public CollectionsFragment() {
     }
@@ -61,45 +63,38 @@ public class CollectionsFragment extends Fragment {
         return view;
     }
 
-    private void getCollections() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.unsplash.com/")
-                .addConverterFactory(GsonConverterFactory.create())
+    private void getCollections(){
+        // DataSource
+        CollectionsDataSource dataSource = new CollectionsDataSource();
+
+
+        // PagedList
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPageSize(10)
                 .build();
-        APIService apiService = retrofit.create(APIService.class);
-        apiService.getCollections(CLIENT_ID).enqueue(new Callback<List<Collection>>() {
+
+        PagedList<Collection> pagedList = new PagedList.Builder<>(dataSource, config)
+                .setFetchExecutor(Executors.newSingleThreadExecutor())
+                .setNotifyExecutor(new MainThreadExecutor())
+                .build();
+
+        // Adapter
+        adapter = new CollectionPagingAdapter(new DiffUtil.ItemCallback<Collection>() {
             @Override
-            public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
-                if(response.isSuccessful()){
-                    Log.d(TAG, "CollectionFragment: onResponse: isSuccessful: " + response.body().size());
-                    collections = (ArrayList<Collection>) response.body();
-                    setRecyclerView();
-                } else {
-                    switch(response.code()) {
-                        case 404:
-                            Log.d(TAG, "ImageSearchFragment: onResponse: isNotSuccessful: error 404: page not found");
-                            break;
-                        case 500:
-                            Log.d(TAG, "ImageSearchFragment: onResponse: isNotSuccessful: error 404: error on server");
-                            break;
-                        case 403:
-                            Log.d(TAG, "ImageSearchFragment: onResponse: isNotSuccessful: error 404: have no permissions");
-                    }
-                }
+            public boolean areItemsTheSame(@NonNull Collection oldItem, @NonNull Collection newItem) {
+                return false;
             }
 
             @Override
-            public void onFailure(Call<List<Collection>> call, Throwable t) {
-                Log.d(TAG, "CollectionFragment: onFailure: " + t.toString());
+            public boolean areContentsTheSame(@NonNull Collection oldItem, @NonNull Collection newItem) {
+                return false;
             }
-        });
-    }
+        }, getChildFragmentManager());
+        adapter.submitList(pagedList);
 
-    private void setRecyclerView() {
-        recyclerView.setHasFixedSize(true);
+        // RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new CollectionAdapter(getContext(), collections, getChildFragmentManager());
-        recyclerView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
+        recyclerView.setAdapter(adapter);
     }
 }

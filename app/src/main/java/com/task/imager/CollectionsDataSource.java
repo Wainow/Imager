@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.paging.PositionalDataSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -16,15 +17,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.task.imager.RandomImageFragment.CLIENT_ID;
 import static com.task.imager.RandomImageFragment.TAG;
 
-public class DataSource extends PositionalDataSource<Root> {
-    private final String query;
-
-    public DataSource(String query1) {
-        this.query = query1;
+public class CollectionsDataSource extends PositionalDataSource {
+    public CollectionsDataSource() {
     }
 
     @Override
-    public void loadInitial(@NonNull final LoadInitialParams params, @NonNull final LoadInitialCallback<Root> callback) {
+    public void loadInitial(@NonNull LoadInitialParams params, @NonNull final LoadInitialCallback callback) {
         Log.d(TAG, "DataSource: loadInitial, requestedStartPosition = " + params.requestedStartPosition +
                 ", requestedLoadSize = " + params.requestedLoadSize);
         Retrofit retrofit = new Retrofit.Builder()
@@ -32,12 +30,12 @@ public class DataSource extends PositionalDataSource<Root> {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         APIService apiService = retrofit.create(APIService.class);
-        apiService.searchKeywordPage(CLIENT_ID, query, 1).enqueue(new Callback<Results>() {
+        apiService.getCollectionsPage(CLIENT_ID,1).enqueue(new Callback<List<Collection>>() {
             @Override
-            public void onResponse(Call<Results> call, Response<Results> response) {
+            public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "DataSource: onResponse: isSuccessful: " + response.body().results.size());
-                    List<Root> roots = response.body().results;
+                    Log.d(TAG, "DataSource: onResponse: isSuccessful: " + response.body().size());
+                    List<Collection> roots = (ArrayList<Collection>) response.body();
                     callback.onResult(roots, 0);
                 } else {
                     switch(response.code()) {
@@ -54,26 +52,27 @@ public class DataSource extends PositionalDataSource<Root> {
             }
 
             @Override
-            public void onFailure(Call<Results> call, Throwable t) {
+            public void onFailure(Call<List<Collection>> call, Throwable t) {
                 Log.d(TAG, "DataSource: onFailure: " + t.toString());
             }
         });
     }
 
     @Override
-    public void loadRange(@NonNull LoadRangeParams params, @NonNull final LoadRangeCallback<Root> callback) {
-        Log.d(TAG, "DataSource: loadRange, startPosition = " + params.startPosition + ", loadSize = " + params.loadSize);
+    public void loadRange(@NonNull LoadRangeParams params, @NonNull final LoadRangeCallback callback) {
+        Log.d(TAG, "DataSource: loadInitial, requestedStartPosition = " + params.startPosition +
+                ", requestedLoadSize = " + params.loadSize);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         APIService apiService = retrofit.create(APIService.class);
-        apiService.searchKeywordPage(CLIENT_ID, query, getPage(params.startPosition)).enqueue(new Callback<Results>() {
+        apiService.getCollectionsPage(CLIENT_ID,1).enqueue(new Callback<List<Collection>>() {
             @Override
-            public void onResponse(Call<Results> call, Response<Results> response) {
+            public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "DataSource: onResponse: isSuccessful: " + response.body().results.size());
-                    List<Root> roots = response.body().results;
+                    Log.d(TAG, "DataSource: onResponse: isSuccessful: " + response.body().size());
+                    List<Collection> roots = (ArrayList<Collection>) response.body();
                     callback.onResult(roots);
                 } else {
                     switch(response.code()) {
@@ -90,13 +89,9 @@ public class DataSource extends PositionalDataSource<Root> {
             }
 
             @Override
-            public void onFailure(Call<Results> call, Throwable t) {
+            public void onFailure(Call<List<Collection>> call, Throwable t) {
                 Log.d(TAG, "DataSource: onFailure: " + t.toString());
             }
         });
-    }
-
-    static int getPage(int startPosition) {
-        return (startPosition / 10) + 1;
     }
 }

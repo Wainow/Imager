@@ -32,8 +32,6 @@ import static com.task.imager.RandomImageFragment.TAG;
 
 public class ImageSearchFragment extends Fragment {
     private RecyclerView recyclerView;
-    public SearchAdapter mAdapter;
-    private ArrayList<Root> roots = new ArrayList<>();
 
     private PagingAdapter adapter;
 
@@ -61,52 +59,8 @@ public class ImageSearchFragment extends Fragment {
         recyclerView =  view.findViewById(R.id.search_recycler);
 
         if(getArguments() != null)
-            //searchKeyword(getArguments().getString("query"));
             searchPagingKeyword(getArguments().getString("query"));
         return view;
-    }
-
-    private void searchKeyword(String query) {
-        Log.d(TAG, "ImageSearchFragment: searchKeyword: query: " + query);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.unsplash.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        APIService apiService = retrofit.create(APIService.class);
-        apiService.searchKeyword(CLIENT_ID, query).enqueue(new Callback<Results>() {
-            @Override
-            public void onResponse(Call<Results> call, Response<Results> response) {
-                if(response.isSuccessful()){
-                    Log.d(TAG, "ImageSearchFragment: onResponse: isSuccessful: " + response.body().results.size());
-                    roots = response.body().results;
-                    setRecyclerView();
-                } else {
-                    switch(response.code()) {
-                        case 404:
-                            Log.d(TAG, "ImageSearchFragment: onResponse: isNotSuccessful: error 404: page not found");
-                            break;
-                        case 500:
-                            Log.d(TAG, "ImageSearchFragment: onResponse: isNotSuccessful: error 404: error on server");
-                            break;
-                        case 403:
-                            Log.d(TAG, "ImageSearchFragment: onResponse: isNotSuccessful: error 404: have no permissions");
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Results> call, Throwable t) {
-                Log.d(TAG, "ImageSearchFragment: onFailure: " + t.toString());
-            }
-        });
-    }
-
-    private void setRecyclerView() {
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        mAdapter = new SearchAdapter(getContext(), roots);
-        recyclerView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
     }
 
     private void searchPagingKeyword(String query){
@@ -117,7 +71,7 @@ public class ImageSearchFragment extends Fragment {
         // PagedList
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
-                .setPageSize(3)
+                .setPageSize(10)
                 .build();
 
         PagedList<Root> pagedList = new PagedList.Builder<>(dataSource, config)

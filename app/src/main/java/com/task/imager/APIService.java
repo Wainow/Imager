@@ -13,10 +13,10 @@ public interface APIService {
             @Query("client_id") String YOUR_ACCESS_KEY
     );
 
-    @GET("/search/photos?")
-    Call<Results> searchKeyword(
+    @GET("/collections?")
+    Call<List<Collection>> getCollectionsPage(
             @Query("client_id") String YOUR_ACCESS_KEY,
-            @Query("query") String query
+            @Query("page") int page
     );
 
     @GET("/search/photos?")
@@ -26,14 +26,10 @@ public interface APIService {
             @Query("page") int page
     );
 
-    @GET("/collections?")
-    Call<List<Collection>> getCollections(
-            @Query("client_id") String YOUR_ACCESS_KEY
-    );
-
     @GET("/collections/{id}/photos")
-    Call<List<Root>> getCollectionPhoto(
+    Call<List<Root>> getCollectionPhotoPage(
             @Path("id") int id,
-            @Query("client_id") String YOUR_ACCESS_KEY
+            @Query("client_id") String YOUR_ACCESS_KEY,
+            @Query("page") int page
     );
 }
