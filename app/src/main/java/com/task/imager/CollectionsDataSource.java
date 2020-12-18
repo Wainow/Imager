@@ -14,6 +14,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.task.imager.DataSource.getPage;
 import static com.task.imager.RandomImageFragment.CLIENT_ID;
 import static com.task.imager.RandomImageFragment.TAG;
 
@@ -67,7 +68,7 @@ public class CollectionsDataSource extends PositionalDataSource {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         APIService apiService = retrofit.create(APIService.class);
-        apiService.getCollectionsPage(CLIENT_ID,1).enqueue(new Callback<List<Collection>>() {
+        apiService.getCollectionsPage(CLIENT_ID, getPage(params.startPosition)).enqueue(new Callback<List<Collection>>() {
             @Override
             public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                 if(response.isSuccessful()){

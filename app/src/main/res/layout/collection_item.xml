@@ -2,14 +2,15 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/colorAccent">
     <TextView
         android:id="@+id/item_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Title"
         android:textStyle="bold"
-        android:textColor="@color/colorBlack"/>
+        android:textColor="@color/colorWhite"/>
     <TextView
         android:id="@+id/item_description"
         android:layout_width="wrap_content"
@@ -17,10 +18,10 @@
         android:text="Description"
         android:layout_below="@id/item_title"
         android:textStyle="italic"
-        android:textColor="@color/colorBlack"/>
+        android:textColor="@color/colorSilver"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@id/item_description"
-        android:background="@color/colorBlack"/>
+        android:background="@color/colorSilver"/>
 </RelativeLayout>

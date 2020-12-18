@@ -32,7 +32,6 @@ public class CollectionPagingAdapter extends PagedListAdapter<Collection, Collec
 
     @Override
     public void onBindViewHolder(@NonNull CollectionPagingAdapter.ViewHolder holder, final int position) {
-        Log.d(TAG, "CollectionAdapter: onBindViewHolder: res.get(position): " + getItem(position).title);
         holder.title.setText(getItem(position).title);
         holder.description.setText(getItem(position).description);
 

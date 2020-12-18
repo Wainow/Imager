@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/ImageSearchFragment"
-        android:name="com.task.imager.ImageSearchFragment"
+        android:name="com.task.imager.SearchImageFragment"
         android:label="ImageSearchFragment"
         tools:layout="@layout/fragment_image_search">
 

@@ -3,6 +3,7 @@ package com.task.imager;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,12 +23,13 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RandomImageFragment extends Fragment {
+public class RandomImageFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     public static final String TAG = "DebugLogs";
-    private ImageButton random_image;
+    private ImageView random_image;
     private TextView textView;
     public static final String CLIENT_ID = "xEBs2kNeIhxsB2NWUEiOKmWSOM5gZXamsjitk3j1NPc";
     private Root currentRoot;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public RandomImageFragment() {
     }
@@ -47,24 +50,25 @@ public class RandomImageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_random_image, container, false);
-        random_image = view.findViewById(R.id.random_img);
-        Button random_button = view.findViewById(R.id.random_image_btn);
-        textView = view.findViewById(R.id.text_view);
-        //getRandomImage();
-        random_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getRandomImage();
-            }
-        });
+        init(view);
         random_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getInfo(currentRoot);
             }
         });
+
         return view;
     }
+
+    private void init(View view) {
+        getRandomImage();
+        random_image = view.findViewById(R.id.random_img);
+        textView = view.findViewById(R.id.text_view);
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+    }
+
     public void getRandomImage(){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
@@ -76,20 +80,23 @@ public class RandomImageFragment extends Fragment {
             public void onResponse(Call<Root> call, Response<Root> response) {
                 if(response.isSuccessful()){
                     Log.d(TAG, "RandomImageFragment: onResponse: isSuccessful: " + response.body().urls.thumb);
+                    random_image.setVisibility(View.VISIBLE);
                     currentRoot = response.body();
                     Glide.with(getContext())
                             .load(currentRoot.urls.small)
                             .into(random_image);
+                    mSwipeRefreshLayout.setRefreshing(false);
                 } else {
+                    Log.d(TAG, "RandomImageFragment: onResponse: isNotSuccessful: " + response.code());
                     switch(response.code()) {
                         case 404:
-                            textView.setText("Страница не найдена");
+                            textView.setText("Error 404: page not found");
                             break;
                         case 500:
-                            textView.setText("Ошибка на сервере");
+                            textView.setText("Error 500: error on server");
                             break;
                         case 403:
-                            textView.setText("Превышенно количество запросов за 1 час");
+                            textView.setText("Error 403: have no permissions");
                     }
                 }
             }
@@ -110,4 +117,8 @@ public class RandomImageFragment extends Fragment {
         dialogInfo.show(getActivity().getSupportFragmentManager(), "dlg");
     }
 
+    @Override
+    public void onRefresh() {
+        getRandomImage();
+    }
 }

@@ -4,10 +4,12 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -15,35 +17,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
+import com.task.imager.model.ImageSearchViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-import static com.task.imager.RandomImageFragment.CLIENT_ID;
 import static com.task.imager.RandomImageFragment.TAG;
 
-public class ImageSearchFragment extends Fragment {
+public class SearchImageFragment extends Fragment {
     private RecyclerView recyclerView;
-
+    private ImageSearchViewModel model;
     private PagingAdapter adapter;
 
-    public ImageSearchFragment() {
+    public SearchImageFragment() {
     }
 
-    public static ImageSearchFragment newInstance(String query) {
-        ImageSearchFragment fragment = new ImageSearchFragment();
-        Bundle args = new Bundle();
-        args.putString("query", query);
-        fragment.setArguments(args);
-        return fragment;
+    public static SearchImageFragment newInstance() {
+        return new SearchImageFragment();
     }
 
     @Override
@@ -56,14 +45,27 @@ public class ImageSearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_image_search, container, false);
 
-        recyclerView =  view.findViewById(R.id.search_recycler);
+        init(view);
 
-        if(getArguments() != null)
-            searchPagingKeyword(getArguments().getString("query"));
         return view;
     }
 
+    private void init(View view) {
+        recyclerView =  view.findViewById(R.id.search_recycler);
+
+        model = ViewModelProviders.of(getActivity()).get(ImageSearchViewModel.class);
+        LiveData<String> data = model.getData();
+        data.observe(getActivity(), new Observer<String>() {
+            @Override
+            public void onChanged(String query) {
+                Log.d(TAG, "SearchImageFragment: onChanged: query: " + query);
+                searchPagingKeyword(query);
+            }
+        });
+    }
+
     private void searchPagingKeyword(String query){
+        Log.d(TAG, "SearchImageFragment: searchPagingKeyword: query: " + query);
         // DataSource
         DataSource dataSource = new DataSource(query);
 

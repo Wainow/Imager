@@ -45,10 +45,10 @@ public class DataSource extends PositionalDataSource<Root> {
                             Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 404: page not found");
                             break;
                         case 500:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 404: error on server");
+                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 500: error on server");
                             break;
                         case 403:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 404: have no permissions");
+                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 403: have no permissions");
                     }
                 }
             }
