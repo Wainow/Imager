@@ -1,9 +1,13 @@
-package com.task.imager;
+package com.task.imager.DataSource;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.paging.PositionalDataSource;
+
+import com.task.imager.API.APIService;
+import com.task.imager.API.Results;
+import com.task.imager.API.Root;
 
 import java.util.List;
 
@@ -13,19 +17,19 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.task.imager.RandomImageFragment.CLIENT_ID;
-import static com.task.imager.RandomImageFragment.TAG;
+import static com.task.imager.Fragment.RandomImageFragment.CLIENT_ID;
+import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
-public class DataSource extends PositionalDataSource<Root> {
+public class SearchDataSource extends PositionalDataSource<Root> {
     private final String query;
 
-    public DataSource(String query1) {
+    public SearchDataSource(String query1) {
         this.query = query1;
     }
 
     @Override
     public void loadInitial(@NonNull final LoadInitialParams params, @NonNull final LoadInitialCallback<Root> callback) {
-        Log.d(TAG, "DataSource: loadInitial, requestedStartPosition = " + params.requestedStartPosition +
+        Log.d(TAG, "SearchDataSource: loadInitial, requestedStartPosition = " + params.requestedStartPosition +
                 ", requestedLoadSize = " + params.requestedLoadSize);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
@@ -36,33 +40,33 @@ public class DataSource extends PositionalDataSource<Root> {
             @Override
             public void onResponse(Call<Results> call, Response<Results> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "DataSource: onResponse: isSuccessful: " + response.body().results.size());
+                    Log.d(TAG, "SearchDataSource: onResponse: isSuccessful: " + response.body().results.size());
                     List<Root> roots = response.body().results;
                     callback.onResult(roots, 0);
                 } else {
                     switch(response.code()) {
                         case 404:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 404: page not found");
+                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: page not found");
                             break;
                         case 500:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 500: error on server");
+                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 500: error on server");
                             break;
                         case 403:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 403: have no permissions");
+                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 403: have no permissions");
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Results> call, Throwable t) {
-                Log.d(TAG, "DataSource: onFailure: " + t.toString());
+                Log.d(TAG, "SearchDataSource: onFailure: " + t.toString());
             }
         });
     }
 
     @Override
     public void loadRange(@NonNull LoadRangeParams params, @NonNull final LoadRangeCallback<Root> callback) {
-        Log.d(TAG, "DataSource: loadRange, startPosition = " + params.startPosition + ", loadSize = " + params.loadSize);
+        Log.d(TAG, "SearchDataSource: loadRange, startPosition = " + params.startPosition + ", loadSize = " + params.loadSize);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -72,26 +76,26 @@ public class DataSource extends PositionalDataSource<Root> {
             @Override
             public void onResponse(Call<Results> call, Response<Results> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "DataSource: onResponse: isSuccessful: " + response.body().results.size());
+                    Log.d(TAG, "SearchDataSource: onResponse: isSuccessful: " + response.body().results.size());
                     List<Root> roots = response.body().results;
                     callback.onResult(roots);
                 } else {
                     switch(response.code()) {
                         case 404:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 404: page not found");
+                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: page not found");
                             break;
                         case 500:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 404: error on server");
+                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: error on server");
                             break;
                         case 403:
-                            Log.d(TAG, "DataSource: onResponse: isNotSuccessful: error 404: have no permissions");
+                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: have no permissions");
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Results> call, Throwable t) {
-                Log.d(TAG, "DataSource: onFailure: " + t.toString());
+                Log.d(TAG, "SearchDataSource: onFailure: " + t.toString());
             }
         });
     }

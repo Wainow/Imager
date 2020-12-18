@@ -1,9 +1,12 @@
-package com.task.imager;
+package com.task.imager.Fragment;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -14,30 +17,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.task.imager.API.Root;
+import com.task.imager.Adapter.PagingAdapter;
+import com.task.imager.DataSource.SearchDataSource;
+import com.task.imager.Custom.MainThreadExecutor;
+import com.task.imager.R;
+import com.task.imager.model.ImageSearchViewModel;
+
 import java.util.concurrent.Executors;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
-import static com.task.imager.RandomImageFragment.CLIENT_ID;
-import static com.task.imager.RandomImageFragment.TAG;
-public class CollectionPhotoFragment extends Fragment {
+public class SearchImageFragment extends Fragment {
     private RecyclerView recyclerView;
+    private ImageSearchViewModel model;
     private PagingAdapter adapter;
 
-    public CollectionPhotoFragment() {
+    public SearchImageFragment() {
     }
-    public static CollectionPhotoFragment newInstance(int id) {
-        CollectionPhotoFragment fragment = new CollectionPhotoFragment();
-        Bundle args = new Bundle();
-        args.putInt("id", id);
-        fragment.setArguments(args);
-        return fragment;
+
+    public static SearchImageFragment newInstance() {
+        return new SearchImageFragment();
     }
 
     @Override
@@ -48,19 +48,31 @@ public class CollectionPhotoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_collection_photo, container, false);
-        recyclerView = view.findViewById(R.id.collection_photo_recycler);
+        View view = inflater.inflate(R.layout.fragment_image_search, container, false);
 
-        if (getArguments() != null) {
-            getCollectionImage(getArguments().getInt("id"));
-        }
+        init(view);
+
         return view;
     }
 
-    private void getCollectionImage(int id){
-        // DataSource
-        CollectionDataSource dataSource = new CollectionDataSource(id);
+    private void init(View view) {
+        recyclerView =  view.findViewById(R.id.search_recycler);
+
+        model = ViewModelProviders.of(getActivity()).get(ImageSearchViewModel.class);
+        LiveData<String> data = model.getData();
+        data.observe(getActivity(), new Observer<String>() {
+            @Override
+            public void onChanged(String query) {
+                Log.d(TAG, "SearchImageFragment: onChanged: query: " + query);
+                searchPagingKeyword(query);
+            }
+        });
+    }
+
+    private void searchPagingKeyword(String query){
+        Log.d(TAG, "SearchImageFragment: searchPagingKeyword: query: " + query);
+        // SearchDataSource
+        SearchDataSource searchDataSource = new SearchDataSource(query);
 
 
         // PagedList
@@ -69,7 +81,7 @@ public class CollectionPhotoFragment extends Fragment {
                 .setPageSize(10)
                 .build();
 
-        PagedList<Root> pagedList = new PagedList.Builder<>(dataSource, config)
+        PagedList<Root> pagedList = new PagedList.Builder<>(searchDataSource, config)
                 .setFetchExecutor(Executors.newSingleThreadExecutor())
                 .setNotifyExecutor(new MainThreadExecutor())
                 .build();
@@ -90,6 +102,7 @@ public class CollectionPhotoFragment extends Fragment {
         adapter.submitList(pagedList);
 
         // RecyclerView
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.setAdapter(adapter);
     }

@@ -1,4 +1,4 @@
-package com.task.imager;
+package com.task.imager.Fragment;
 
 import android.os.Bundle;
 
@@ -9,13 +9,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.task.imager.API.Root;
+import com.task.imager.API.APIService;
+import com.task.imager.Custom.DialogInfo;
+import com.task.imager.R;
 
 import retrofit2.Call;
 import retrofit2.Callback;

@@ -1,38 +1,38 @@
-package com.task.imager;
+package com.task.imager.Fragment;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.task.imager.model.ImageSearchViewModel;
+import com.task.imager.API.Root;
+import com.task.imager.Adapter.PagingAdapter;
+import com.task.imager.DataSource.CollectionDataSource;
+import com.task.imager.Custom.MainThreadExecutor;
+import com.task.imager.R;
 
 import java.util.concurrent.Executors;
 
-import static com.task.imager.RandomImageFragment.TAG;
-
-public class SearchImageFragment extends Fragment {
+public class CollectionPhotoFragment extends Fragment {
     private RecyclerView recyclerView;
-    private ImageSearchViewModel model;
     private PagingAdapter adapter;
 
-    public SearchImageFragment() {
+    public CollectionPhotoFragment() {
     }
-
-    public static SearchImageFragment newInstance() {
-        return new SearchImageFragment();
+    public static CollectionPhotoFragment newInstance(int id) {
+        CollectionPhotoFragment fragment = new CollectionPhotoFragment();
+        Bundle args = new Bundle();
+        args.putInt("id", id);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -43,31 +43,19 @@ public class SearchImageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_image_search, container, false);
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_collection_photo, container, false);
+        recyclerView = view.findViewById(R.id.collection_photo_recycler);
 
-        init(view);
-
+        if (getArguments() != null) {
+            getCollectionImage(getArguments().getInt("id"));
+        }
         return view;
     }
 
-    private void init(View view) {
-        recyclerView =  view.findViewById(R.id.search_recycler);
-
-        model = ViewModelProviders.of(getActivity()).get(ImageSearchViewModel.class);
-        LiveData<String> data = model.getData();
-        data.observe(getActivity(), new Observer<String>() {
-            @Override
-            public void onChanged(String query) {
-                Log.d(TAG, "SearchImageFragment: onChanged: query: " + query);
-                searchPagingKeyword(query);
-            }
-        });
-    }
-
-    private void searchPagingKeyword(String query){
-        Log.d(TAG, "SearchImageFragment: searchPagingKeyword: query: " + query);
-        // DataSource
-        DataSource dataSource = new DataSource(query);
+    private void getCollectionImage(int id){
+        // SearchDataSource
+        CollectionDataSource dataSource = new CollectionDataSource(id);
 
 
         // PagedList
@@ -97,7 +85,6 @@ public class SearchImageFragment extends Fragment {
         adapter.submitList(pagedList);
 
         // RecyclerView
-        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.setAdapter(adapter);
     }

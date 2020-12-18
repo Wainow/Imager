@@ -10,7 +10,6 @@
     <item
         android:id="@+id/action_collections"
         android:icon="@drawable/ic_action_collections"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView"
         android:title="TODO"/>
 </menu>

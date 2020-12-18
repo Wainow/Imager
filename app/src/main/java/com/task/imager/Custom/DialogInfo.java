@@ -1,4 +1,4 @@
-package com.task.imager;
+package com.task.imager.Custom;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -11,7 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import static com.task.imager.RandomImageFragment.TAG;
+
+import com.task.imager.R;
+
+import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
 public class DialogInfo extends DialogFragment {
     private TextView description;
@@ -51,16 +54,21 @@ public class DialogInfo extends DialogFragment {
 
         description.setText(getArguments().getString("description"));
         width.setText(
+                "Width: " +
                 String.valueOf(
                         getArguments().getInt("width")
                 )
         );
         height.setText(
+                "Height: " +
                 String.valueOf(
                         getArguments().getInt("height")
                 )
         );
-        ref.setText(getArguments().getString("ref"));
+        ref.setText(
+                "Ref: " +
+                getArguments().getString("ref")
+        );
 
         AlertDialog alertDialog = mDialogBuilder.create();
         alertDialog.show();

@@ -1,4 +1,4 @@
-package com.task.imager;
+package com.task.imager.Custom;
 
 import android.content.Context;
 import android.util.AttributeSet;

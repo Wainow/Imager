@@ -1,4 +1,4 @@
-package com.task.imager;
+package com.task.imager.API;
 
 public class Collection {
     public float id;

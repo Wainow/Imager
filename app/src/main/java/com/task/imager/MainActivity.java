@@ -9,25 +9,27 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.task.imager.Custom.CustomViewPager;
+import com.task.imager.Fragment.CollectionListFragment;
+import com.task.imager.Fragment.RandomImageFragment;
+import com.task.imager.Fragment.SearchImageFragment;
 import com.task.imager.model.ImageSearchViewModel;
 
-import static com.task.imager.RandomImageFragment.TAG;
+import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
-public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
+public class MainActivity extends AppCompatActivity{
         private CustomViewPager pager;
         private MyFragmentPagerAdapter adapter;
         private ImageSearchViewModel model;
+
+        private CollectionListFragment collectionListFragment;
 
         @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +45,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         pager = findViewById(R.id.pager);
         pager.setAdapter(adapter);
         pager.setCurrentItem(1);
+        pager.setOffscreenPageLimit(3);
         model = ViewModelProviders.of(this).get(ImageSearchViewModel.class);
+
+        collectionListFragment = new CollectionListFragment();
     }
 
     @Override
@@ -53,7 +58,22 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchMenuItem.getActionView();
-        searchView.setOnQueryTextListener(this);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d(TAG, "MainActivity: onQueryTextSubmit");
+                pager.setCurrentItem(2);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d(TAG, "MainActivity: onQueryTextChange");
+                model.getData().setValue(newText);
+                pager.setCurrentItem(2);
+                return false;
+            }
+        });
 
         MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
@@ -74,25 +94,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     @Override
-    public boolean onQueryTextSubmit(String query) {
-        Log.d(TAG, "MainActivity: onQueryTextSubmit");
-        pager.setCurrentItem(2);
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        Log.d(TAG, "MainActivity: onQueryTextChange");
-        model.getData().setValue(newText);
-        pager.setCurrentItem(2);
-        return false;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_collections) {
-            pager.setCurrentItem(0);
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_collections:
+                pager.setCurrentItem(0);
+                return true;
+            case R.id.action_search:
+                pager.setCurrentItem(2);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -107,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new CollectionsFragment();
+                    return collectionListFragment;
                 case 2:
                     return SearchImageFragment.newInstance();
                 default:
@@ -119,6 +128,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         public int getCount() {
             return 3;
         }
+    }
 
+    @Override
+    public void onBackPressed() {
+            collectionListFragment.getChildFragmentManager().popBackStack();
     }
 }

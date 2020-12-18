@@ -1,6 +1,5 @@
-package com.task.imager;
+package com.task.imager.Adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +12,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-
-import static com.task.imager.RandomImageFragment.TAG;
+import com.task.imager.API.Root;
+import com.task.imager.Custom.DialogInfo;
+import com.task.imager.R;
 
 public class PagingAdapter extends PagedListAdapter<Root, PagingAdapter.ViewHolder>{
-    protected PagingAdapter(@NonNull DiffUtil.ItemCallback<Root> diffCallback) {
+    public PagingAdapter(@NonNull DiffUtil.ItemCallback<Root> diffCallback) {
         super(diffCallback);
     }
 

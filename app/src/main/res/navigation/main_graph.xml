@@ -6,7 +6,7 @@
     app:startDestination="@id/RandomImageFragment">
     <fragment
         android:id="@+id/RandomImageFragment"
-        android:name="com.task.imager.RandomImageFragment"
+        android:name="com.task.imager.Fragment.RandomImageFragment"
         android:label="RandomImageFragment"
         tools:layout="@layout/fragment_random_image">
 
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/ImageSearchFragment"
-        android:name="com.task.imager.SearchImageFragment"
+        android:name="com.task.imager.Fragment.SearchImageFragment"
         android:label="ImageSearchFragment"
         tools:layout="@layout/fragment_image_search">
 
@@ -32,7 +32,7 @@
     </fragment>
     <fragment
         android:id="@+id/CollectionsFragment"
-        android:name="com.task.imager.CollectionsFragment"
+        android:name="com.task.imager.Fragment.CollectionListFragment"
         android:label="CollectionsFragment"
         tools:layout="@layout/fragment_collections">
     </fragment>

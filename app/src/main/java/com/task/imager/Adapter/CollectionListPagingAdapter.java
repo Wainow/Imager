@@ -1,4 +1,4 @@
-package com.task.imager;
+package com.task.imager.Adapter;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,16 +9,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.paging.PagedListAdapter;
-import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.task.imager.RandomImageFragment.TAG;
+import com.task.imager.API.Collection;
+import com.task.imager.Fragment.CollectionPhotoFragment;
+import com.task.imager.R;
 
-public class CollectionPagingAdapter extends PagedListAdapter<Collection, CollectionPagingAdapter.ViewHolder> {
+import static com.task.imager.Fragment.RandomImageFragment.TAG;
+
+public class CollectionListPagingAdapter extends PagedListAdapter<Collection, CollectionListPagingAdapter.ViewHolder> {
     private FragmentManager manager;
 
-    protected CollectionPagingAdapter(@NonNull DiffUtil.ItemCallback<Collection> diffCallback, FragmentManager manager) {
+    public CollectionListPagingAdapter(@NonNull DiffUtil.ItemCallback<Collection> diffCallback, FragmentManager manager) {
         super(diffCallback);
         this.manager = manager;
     }
@@ -27,20 +30,20 @@ public class CollectionPagingAdapter extends PagedListAdapter<Collection, Collec
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.collection_item, parent, false);
-        return new CollectionPagingAdapter.ViewHolder(view);
+        return new CollectionListPagingAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CollectionPagingAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull CollectionListPagingAdapter.ViewHolder holder, final int position) {
         holder.title.setText(getItem(position).title);
         holder.description.setText(getItem(position).description);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "CollectionAdapter: onBindViewHolder: onClick");
+                Log.d(TAG, "CollectionListPagingAdapter: onBindViewHolder: onClick");
                 manager.beginTransaction()
-                        .add(R.id.fragment_container, CollectionPhotoFragment.newInstance((int) getItem(position).id))
+                        .replace(R.id.fragment_container, CollectionPhotoFragment.newInstance((int) getItem(position).id))
                         .addToBackStack(null)
                         .commit();
             }

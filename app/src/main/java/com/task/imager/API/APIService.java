@@ -1,4 +1,8 @@
-package com.task.imager;
+package com.task.imager.API;
+
+import com.task.imager.API.Collection;
+import com.task.imager.API.Results;
+import com.task.imager.API.Root;
 
 import java.util.List;
 

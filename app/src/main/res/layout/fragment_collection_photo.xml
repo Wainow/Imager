@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CollectionPhotoFragment"
+    tools:context=".Fragment.CollectionPhotoFragment"
     android:background="@color/colorPrimary">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/collection_photo_recycler"

@@ -1,4 +1,4 @@
-package com.task.imager;
+package com.task.imager.API;
 
 import java.util.Date;
 import java.util.List;

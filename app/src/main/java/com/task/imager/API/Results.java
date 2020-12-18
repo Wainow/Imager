@@ -1,11 +1,11 @@
-package com.task.imager;
+package com.task.imager.API;
 
 import java.util.ArrayList;
 
 public class Results {
     private float total;
     private float total_pages;
-    ArrayList<Root> results = new ArrayList<>();
+    public ArrayList<Root> results = new ArrayList<>();
 
 
     // Getter Methods
