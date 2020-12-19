@@ -42,20 +42,20 @@ public class CollectionListDataSource extends PositionalDataSource {
                 } else {
                     switch(response.code()) {
                         case 404:
-                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: page not found");
+                            Log.d(TAG, "CollectionListDataSource: loadInitial: onResponse: isNotSuccessful: error 404: page not found");
                             break;
                         case 500:
-                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: error on server");
+                            Log.d(TAG, "CollectionListDataSource: loadInitial: onResponse: isNotSuccessful: error 404: error on server");
                             break;
                         case 403:
-                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: have no permissions");
+                            Log.d(TAG, "CollectionListDataSource: loadInitial: onResponse: isNotSuccessful: error 404: have no permissions");
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Collection>> call, Throwable t) {
-                Log.d(TAG, "SearchDataSource: onFailure: " + t.toString());
+                Log.d(TAG, "CollectionListDataSource: loadInitial: onFailure: " + t.toString());
             }
         });
     }
@@ -79,20 +79,20 @@ public class CollectionListDataSource extends PositionalDataSource {
                 } else {
                     switch(response.code()) {
                         case 404:
-                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: page not found");
+                            Log.d(TAG, "CollectionListDataSource: loadRange: onResponse: isNotSuccessful: error 404: page not found");
                             break;
                         case 500:
-                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: error on server");
+                            Log.d(TAG, "CollectionListDataSource: loadRange: onResponse: isNotSuccessful: error 404: error on server");
                             break;
                         case 403:
-                            Log.d(TAG, "SearchDataSource: onResponse: isNotSuccessful: error 404: have no permissions");
+                            Log.d(TAG, "CollectionListDataSource: loadRange: onResponse: isNotSuccessful: error 404: have no permissions");
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Collection>> call, Throwable t) {
-                Log.d(TAG, "SearchDataSource: onFailure: " + t.toString());
+                Log.d(TAG, "CollectionListDataSource: loadRange: onFailure: " + t.toString());
             }
         });
     }

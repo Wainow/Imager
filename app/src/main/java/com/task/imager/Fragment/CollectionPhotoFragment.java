@@ -12,18 +12,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.task.imager.API.Root;
 import com.task.imager.Adapter.PagingAdapter;
+import com.task.imager.Custom.TextViewPlus;
 import com.task.imager.DataSource.CollectionDataSource;
 import com.task.imager.Custom.MainThreadExecutor;
 import com.task.imager.R;
+
+import org.w3c.dom.Text;
 
 import java.util.concurrent.Executors;
 
 public class CollectionPhotoFragment extends Fragment {
     private RecyclerView recyclerView;
     private PagingAdapter adapter;
+    private TextViewPlus description;
 
     public CollectionPhotoFragment() {
     }
@@ -45,17 +50,21 @@ public class CollectionPhotoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_collection_photo, container, false);
-        recyclerView = view.findViewById(R.id.collection_photo_recycler);
+        init(view);
+        return view;
+    }
 
+    private void init(View view) {
+        recyclerView = view.findViewById(R.id.collection_photo_recycler);
+        description = view.findViewById(R.id.collection_photo_description);
         if (getArguments() != null) {
             getCollectionImage(getArguments().getInt("id"));
         }
-        return view;
     }
 
     private void getCollectionImage(int id){
         // SearchDataSource
-        CollectionDataSource dataSource = new CollectionDataSource(id);
+        CollectionDataSource dataSource = new CollectionDataSource(id, description);
 
 
         // PagedList

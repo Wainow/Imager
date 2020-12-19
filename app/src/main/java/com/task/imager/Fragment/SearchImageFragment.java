@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 
 import com.task.imager.API.Root;
 import com.task.imager.Adapter.PagingAdapter;
+import com.task.imager.Custom.TextViewPlus;
 import com.task.imager.DataSource.SearchDataSource;
 import com.task.imager.Custom.MainThreadExecutor;
 import com.task.imager.R;
@@ -32,6 +33,7 @@ public class SearchImageFragment extends Fragment {
     private RecyclerView recyclerView;
     private ImageSearchViewModel model;
     private PagingAdapter adapter;
+    private TextViewPlus description;
 
     public SearchImageFragment() {
     }
@@ -57,7 +59,7 @@ public class SearchImageFragment extends Fragment {
 
     private void init(View view) {
         recyclerView =  view.findViewById(R.id.search_recycler);
-
+        description = view.findViewById(R.id.search_description);
         model = ViewModelProviders.of(getActivity()).get(ImageSearchViewModel.class);
         LiveData<String> data = model.getData();
         data.observe(getActivity(), new Observer<String>() {
@@ -71,8 +73,13 @@ public class SearchImageFragment extends Fragment {
 
     private void searchPagingKeyword(String query){
         Log.d(TAG, "SearchImageFragment: searchPagingKeyword: query: " + query);
+        if(!query.equals(""))
+            description.setVisibility(View.INVISIBLE);
+        else
+            description.setVisibility(View.VISIBLE);
+
         // SearchDataSource
-        SearchDataSource searchDataSource = new SearchDataSource(query);
+        SearchDataSource searchDataSource = new SearchDataSource(query, description);
 
 
         // PagedList
