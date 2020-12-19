@@ -8,21 +8,25 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.task.imager.API.Collection;
 import com.task.imager.Adapter.CollectionListPagingAdapter;
+import com.task.imager.Custom.TextViewPlus;
 import com.task.imager.DataSource.CollectionListDataSource;
 import com.task.imager.Custom.MainThreadExecutor;
 import com.task.imager.R;
 
 import java.util.concurrent.Executors;
+import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
 public class CollectionListFragment extends Fragment {
     private RecyclerView recyclerView;
-    private CollectionListPagingAdapter adapter;
+    private TextViewPlus description;
+    private CollectionListDataSource dataSource;
 
     public CollectionListFragment() {
     }
@@ -45,16 +49,33 @@ public class CollectionListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_collections, container, false);
 
-        recyclerView =  view.findViewById(R.id.collections_recycler);
+        init(view);
 
         getCollections();
 
         return view;
     }
 
+    private void init(View view) {
+        recyclerView =  view.findViewById(R.id.collections_recycler);
+        description = view.findViewById(R.id.collection_description);
+    }
+
+
     private void getCollections(){
         // SearchDataSource
-        CollectionListDataSource dataSource = new CollectionListDataSource();
+        if(getArguments() != null) {
+            dataSource = new CollectionListDataSource(
+                    getArguments(),
+                    description
+            );
+        } else{
+            dataSource = new CollectionListDataSource(
+                    new Bundle(),
+                    description
+            );
+        }
+
 
 
         // PagedList
@@ -69,7 +90,7 @@ public class CollectionListFragment extends Fragment {
                 .build();
 
         // Adapter
-        adapter = new CollectionListPagingAdapter(new DiffUtil.ItemCallback<Collection>() {
+        CollectionListPagingAdapter adapter = new CollectionListPagingAdapter(new DiffUtil.ItemCallback<Collection>() {
             @Override
             public boolean areItemsTheSame(@NonNull Collection oldItem, @NonNull Collection newItem) {
                 return false;

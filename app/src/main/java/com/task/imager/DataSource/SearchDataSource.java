@@ -1,5 +1,6 @@
 package com.task.imager.DataSource;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.View;
 
@@ -45,14 +46,18 @@ public class SearchDataSource extends PositionalDataSource<Root> {
                 .build();
         APIService apiService = retrofit.create(APIService.class);
         apiService.searchKeywordPage(CLIENT_ID, query, 1).enqueue(new Callback<Results>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<Results> call, Response<Results> response) {
-                if(response.isSuccessful()){
+                if(response.isSuccessful() && response.body() != null){
+                    t.setVisibility(View.INVISIBLE);
                     Log.d(TAG, "SearchDataSource: loadInitial: onResponse: isSuccessful: " + response.body().results.size());
-
-                    if(response.body().results.size() < 10)
+                    if(response.body().results.size() == 0){
+                        Log.d(TAG, "SearchDataSource: loadRange: onResponse: isSuccessful: The images are not found");
+                        t.setVisibility(View.VISIBLE);
+                        t.setText("The images are not found");
+                    } else if(response.body().results.size() < 10)
                         isLoadRange = false;
-
                     List<Root> roots = response.body().results;
                     callback.onResult(roots, 0);
                 } else {
@@ -73,9 +78,12 @@ public class SearchDataSource extends PositionalDataSource<Root> {
                 }
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
-            public void onFailure(Call<Results> call, Throwable t) {
+            public void onFailure(Call<Results> call, Throwable tr) {
                 Log.d(TAG, "SearchDataSource: loadInitial: onFailure: " + t.toString());
+                t.setVisibility(View.VISIBLE);
+                t.setText("Unable to resolve host \"api.unsplash.com\"");
             }
         });
     }
@@ -90,14 +98,17 @@ public class SearchDataSource extends PositionalDataSource<Root> {
                     .build();
             APIService apiService = retrofit.create(APIService.class);
             apiService.searchKeywordPage(CLIENT_ID, query, getPage(params.startPosition)).enqueue(new Callback<Results>() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onResponse(Call<Results> call, Response<Results> response) {
-                    if (response.isSuccessful()) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        t.setVisibility(View.INVISIBLE);
                         Log.d(TAG, "SearchDataSource: loadRange: onResponse: isSuccessful: " + response.body().results.size());
                         List<Root> roots = response.body().results;
                         callback.onResult(roots);
+                    } else {
                         t.setVisibility(View.VISIBLE);
-                        switch(response.code()) {
+                        switch (response.code()) {
                             case 404:
                                 Log.d(TAG, "SearchDataSource: onResponse: loadRange: isNotSuccessful: error 404: page not found");
                                 t.setText("Error 404: page not found");
@@ -114,7 +125,7 @@ public class SearchDataSource extends PositionalDataSource<Root> {
                 }
 
                 @Override
-                public void onFailure(Call<Results> call, Throwable t) {
+                public void onFailure(Call<Results> call, Throwable tr) {
                     Log.d(TAG, "SearchDataSource: loadRange: onFailure: " + t.toString());
                 }
             });

@@ -1,5 +1,6 @@
 package com.task.imager.DataSource;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.View;
 
@@ -28,10 +29,12 @@ import static com.task.imager.Fragment.RandomImageFragment.TAG;
 public class CollectionDataSource extends PositionalDataSource<Root> {
     private final int id;
     private TextViewPlus t;
+    private Boolean isLoadRange;
 
     public CollectionDataSource(int id, TextViewPlus t) {
         this.id = id;
         this.t = t;
+        this.isLoadRange = true;
     }
 
     @Override
@@ -44,10 +47,13 @@ public class CollectionDataSource extends PositionalDataSource<Root> {
                 .build();
         APIService apiService = retrofit.create(APIService.class);
         apiService.getCollectionPhotoPage(id, CLIENT_ID,1).enqueue(new Callback<List<Root>>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Root>> call, Response<List<Root>> response) {
-                if(response.isSuccessful()){
-                    Log.d(TAG, "SearchDataSource: onResponse: loadInitial: isSuccessful: " + response.body().size());
+                if(response.isSuccessful() && response.body() != null){
+                    Log.d(TAG, "CollectionDataSource: onResponse: loadInitial: isSuccessful: " + response.body().size());
+                    if(response.body().size() < 10)
+                        isLoadRange = false;
                     List<Root> roots = (ArrayList<Root>) response.body();
                     callback.onResult(roots, 0);
                 } else {
@@ -68,47 +74,52 @@ public class CollectionDataSource extends PositionalDataSource<Root> {
                 }
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
-            public void onFailure(Call<List<Root>> call, Throwable t) {
-                Log.d(TAG, "SearchDataSource: onFailure: loadInitial: " + t.toString());
+            public void onFailure(Call<List<Root>> call, Throwable tr) {
+                Log.d(TAG, "CollectionDataSource: onFailure: loadInitial: " + t.toString());
+                t.setVisibility(View.VISIBLE);
+                t.setText("Unable to resolve host \"api.unsplash.com\"");
             }
         });
     }
 
     @Override
     public void loadRange(@NonNull LoadRangeParams params, @NonNull final LoadRangeCallback<Root> callback) {
-        Log.d(TAG, "SearchDataSource: loadRange, startPosition = " + params.startPosition + ", loadSize = " + params.loadSize);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.unsplash.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        APIService apiService = retrofit.create(APIService.class);
-        apiService.getCollectionPhotoPage(id, CLIENT_ID, getPage(params.startPosition)).enqueue(new Callback<List<Root>>() {
-            @Override
-            public void onResponse(Call<List<Root>> call, Response<List<Root>> response) {
-                if(response.isSuccessful()){
-                    Log.d(TAG, "CollectionDataSource: onResponse: isSuccessful: " + response.body().size());
-                    List<Root> roots = (ArrayList<Root>) response.body();
-                    callback.onResult(roots);
-                } else {
-                    t.setVisibility(View.VISIBLE);
-                    switch(response.code()) {
-                        case 404:
-                            Log.d(TAG, "CollectionDataSource: onResponse: loadRange: isNotSuccessful: error 404: page not found");
-                            break;
-                        case 500:
-                            Log.d(TAG, "CollectionDataSource: onResponse: loadRange: isNotSuccessful: error 404: error on server");
-                            break;
-                        case 403:
-                            Log.d(TAG, "CollectionDataSource: onResponse: loadRange: isNotSuccessful: error 404: have no permissions");
+        if(isLoadRange) {
+            Log.d(TAG, "SearchDataSource: loadRange, startPosition = " + params.startPosition + ", loadSize = " + params.loadSize);
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://api.unsplash.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            APIService apiService = retrofit.create(APIService.class);
+            apiService.getCollectionPhotoPage(id, CLIENT_ID, getPage(params.startPosition)).enqueue(new Callback<List<Root>>() {
+                @Override
+                public void onResponse(Call<List<Root>> call, Response<List<Root>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Log.d(TAG, "CollectionDataSource: onResponse: isSuccessful: " + response.body().size());
+                        List<Root> roots = (ArrayList<Root>) response.body();
+                        callback.onResult(roots);
+                    } else {
+                        t.setVisibility(View.VISIBLE);
+                        switch (response.code()) {
+                            case 404:
+                                Log.d(TAG, "CollectionDataSource: onResponse: loadRange: isNotSuccessful: error 404: page not found");
+                                break;
+                            case 500:
+                                Log.d(TAG, "CollectionDataSource: onResponse: loadRange: isNotSuccessful: error 500: error on server");
+                                break;
+                            case 403:
+                                Log.d(TAG, "CollectionDataSource: onResponse: loadRange: isNotSuccessful: error 403: have no permissions");
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<List<Root>> call, Throwable t) {
-                Log.d(TAG, "CollectionDataSource: onFailure: loadRange: " + t.toString());
-            }
-        });
+                @Override
+                public void onFailure(Call<List<Root>> call, Throwable t) {
+                    Log.d(TAG, "CollectionDataSource: onFailure: loadRange: " + t.toString());
+                }
+            });
+        }
     }
 }

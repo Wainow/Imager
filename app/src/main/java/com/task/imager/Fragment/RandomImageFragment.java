@@ -1,5 +1,6 @@
 package com.task.imager.Fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -77,16 +78,17 @@ public class RandomImageFragment extends Fragment implements SwipeRefreshLayout.
                 .build();
         APIService apiService = retrofit.create(APIService.class);
         apiService.getRandomPhoto(CLIENT_ID).enqueue(new Callback<Root>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<Root> call, Response<Root> response) {
-                if(response.isSuccessful()){
+                if(response.isSuccessful() && getContext() != null && response.body() != null){
                     Log.d(TAG, "RandomImageFragment: onResponse: isSuccessful: " + response.body().urls.thumb);
                     random_image.setVisibility(View.VISIBLE);
                     currentRoot = response.body();
-                    Glide.with(getContext())
-                            .load(currentRoot.urls.small)
-                            .into(random_image);
-                    mSwipeRefreshLayout.setRefreshing(false);
+                        Glide.with(getContext())
+                                .load(currentRoot.urls.small)
+                                .into(random_image);
+                        mSwipeRefreshLayout.setRefreshing(false);
                 } else {
                     Log.d(TAG, "RandomImageFragment: onResponse: isNotSuccessful: " + response.code());
                     switch(response.code()) {
@@ -101,21 +103,26 @@ public class RandomImageFragment extends Fragment implements SwipeRefreshLayout.
                     }
                 }
             }
+            @SuppressLint("SetTextI18n")
             @Override
             public void onFailure(Call<Root> call, Throwable t) {
                 Log.d(TAG, "RandomImageFragment: onFailure: " + t.toString());
+                textView.setVisibility(View.VISIBLE);
+                textView.setText("Unable to resolve host \"api.unsplash.com\"");
             }
         });
     }
 
     private void getInfo(Root currentRoot) {
-        DialogInfo dialogInfo = DialogInfo.newInstance(
-                currentRoot.height,
-                currentRoot.width,
-                currentRoot.description,
-                currentRoot.urls.full
-        );
-        dialogInfo.show(getActivity().getSupportFragmentManager(), "dlg");
+        if(getActivity() != null) {
+            DialogInfo dialogInfo = DialogInfo.newInstance(
+                    currentRoot.height,
+                    currentRoot.width,
+                    currentRoot.description,
+                    currentRoot.urls
+            );
+            dialogInfo.show(getActivity().getSupportFragmentManager(), "dlg");
+        }
     }
 
     @Override

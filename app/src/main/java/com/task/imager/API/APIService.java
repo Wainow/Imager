@@ -36,4 +36,10 @@ public interface APIService {
             @Query("client_id") String YOUR_ACCESS_KEY,
             @Query("page") int page
     );
+
+    @GET("/collections/{id}/photos?&page=1&per_page=1")
+    Call<List<Root>> getCollectionPhoto(
+            @Path("id") int id,
+            @Query("client_id") String YOUR_ACCESS_KEY
+    );
 }

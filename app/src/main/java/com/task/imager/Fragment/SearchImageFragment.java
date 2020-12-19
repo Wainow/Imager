@@ -58,17 +58,20 @@ public class SearchImageFragment extends Fragment {
     }
 
     private void init(View view) {
+        Log.d(TAG, "SearchImageFragment: init");
         recyclerView =  view.findViewById(R.id.search_recycler);
         description = view.findViewById(R.id.search_description);
-        model = ViewModelProviders.of(getActivity()).get(ImageSearchViewModel.class);
-        LiveData<String> data = model.getData();
-        data.observe(getActivity(), new Observer<String>() {
-            @Override
-            public void onChanged(String query) {
-                Log.d(TAG, "SearchImageFragment: onChanged: query: " + query);
-                searchPagingKeyword(query);
-            }
-        });
+        if(getActivity() != null) {
+            model = ViewModelProviders.of(getActivity()).get(ImageSearchViewModel.class);
+            LiveData<String> data = model.getData();
+            data.observe(getActivity(), new Observer<String>() {
+                @Override
+                public void onChanged(String query) {
+                    Log.d(TAG, "SearchImageFragment: onChanged: query: " + query);
+                    searchPagingKeyword(query);
+                }
+            });
+        }
     }
 
     private void searchPagingKeyword(String query){

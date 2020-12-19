@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.task.imager.Custom.CustomViewPager;
 import com.task.imager.Fragment.CollectionListFragment;
@@ -26,12 +27,11 @@ import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
 public class MainActivity extends AppCompatActivity{
         private CustomViewPager pager;
-        private MyFragmentPagerAdapter adapter;
-        private ImageSearchViewModel model;
+    private ImageSearchViewModel model;
 
         private CollectionListFragment collectionListFragment;
 
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -41,14 +41,14 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void init() {
-        adapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+        MyFragmentPagerAdapter adapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
         pager = findViewById(R.id.pager);
         pager.setAdapter(adapter);
         pager.setCurrentItem(1);
         pager.setOffscreenPageLimit(3);
         model = ViewModelProviders.of(this).get(ImageSearchViewModel.class);
 
-        collectionListFragment = new CollectionListFragment();
+        collectionListFragment = CollectionListFragment.newInstance();
     }
 
     @Override
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity{
         inflater.inflate(R.menu.menu, menu);
 
         MenuItem searchMenuItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        final SearchView searchView = (SearchView) searchMenuItem.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity{
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Log.d(TAG, "MainActivity: onQueryTextChange");
+                Log.d(TAG, "MainActivity: onQueryTextChange: query: " + newText);
                 model.getData().setValue(newText);
                 pager.setCurrentItem(2);
                 return false;
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity{
         MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                Log.d(TAG, "MainActivity: onMenuItemActionExpand");
+                Log.d(TAG, "MainActivity: onMenuItemActionExpand: query: " + model.getData().getValue());
                 pager.setCurrentItem(2);
                 return true;
             }
@@ -132,6 +132,18 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public void onBackPressed() {
-            collectionListFragment.getChildFragmentManager().popBackStack();
+        switch (pager.getCurrentItem()){
+            case 0:
+                if (collectionListFragment.getChildFragmentManager().getFragments().size() != 0)
+                    collectionListFragment.getChildFragmentManager().popBackStack();
+                else
+                    pager.setCurrentItem(1);
+                break;
+            case 2:
+                pager.setCurrentItem(1);
+                break;
+            default:
+                super.onBackPressed();
+        }
     }
 }

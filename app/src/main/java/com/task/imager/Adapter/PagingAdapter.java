@@ -1,11 +1,14 @@
 package com.task.imager.Adapter;
 
+import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
@@ -16,7 +19,12 @@ import com.task.imager.API.Root;
 import com.task.imager.Custom.DialogInfo;
 import com.task.imager.R;
 
+import java.util.Objects;
+
+import static com.task.imager.Fragment.RandomImageFragment.TAG;
+
 public class PagingAdapter extends PagedListAdapter<Root, PagingAdapter.ViewHolder>{
+
     public PagingAdapter(@NonNull DiffUtil.ItemCallback<Root> diffCallback) {
         super(diffCallback);
     }
@@ -28,19 +36,23 @@ public class PagingAdapter extends PagedListAdapter<Root, PagingAdapter.ViewHold
         return new PagingAdapter.ViewHolder(view);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        //Log.d(TAG, "PagingAdapter: onBindViewHolder: res.get(position): " + getCurrentList().get(position).urls.thumb);
-        Glide.with(holder.itemView.getContext())
-                .load(getItem(position).urls.thumb)
-                .into(holder.imageView);
+        try {
+            Glide.with(holder.itemView.getContext())
+                    .load(Objects.requireNonNull(getItem(position)).urls.small)
+                    .into(holder.imageView);
 
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getInfo(getItem(position), holder);
-            }
-        });
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getInfo(Objects.requireNonNull(getItem(position)), holder);
+                }
+            });
+        } catch (NullPointerException e){
+            Log.d(TAG, "PagingAdapter: onBindViewHolder: NullPointerException");
+        }
     }
 
     private void getInfo(Root currentRoot, ViewHolder holder) {
@@ -48,7 +60,7 @@ public class PagingAdapter extends PagedListAdapter<Root, PagingAdapter.ViewHold
                 currentRoot.height,
                 currentRoot.width,
                 currentRoot.description,
-                currentRoot.urls.full
+                currentRoot.urls
         );
         dialogInfo.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "dlg");
     }
