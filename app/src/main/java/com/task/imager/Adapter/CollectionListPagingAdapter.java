@@ -1,6 +1,8 @@
 package com.task.imager.Adapter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
@@ -36,11 +39,9 @@ import static com.task.imager.Fragment.RandomImageFragment.CLIENT_ID;
 import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
 public class CollectionListPagingAdapter extends PagedListAdapter<Collection, CollectionListPagingAdapter.ViewHolder> {
-    private FragmentManager manager;
 
-    public CollectionListPagingAdapter(@NonNull DiffUtil.ItemCallback<Collection> diffCallback, FragmentManager manager) {
+    public CollectionListPagingAdapter(@NonNull DiffUtil.ItemCallback<Collection> diffCallback) {
         super(diffCallback);
-        this.manager = manager;
     }
 
     @NonNull
@@ -52,23 +53,34 @@ public class CollectionListPagingAdapter extends PagedListAdapter<Collection, Co
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
-    public void onBindViewHolder(@NonNull CollectionListPagingAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final CollectionListPagingAdapter.ViewHolder holder, final int position) {
         try {
-            holder.title.setText(Objects.requireNonNull(getItem(position)).title);
-            holder.description.setText(Objects.requireNonNull(getItem(position)).description);
+            holder.title.setText(Objects.requireNonNull(getItem(position)).getTitle());
+            holder.description.setText(Objects.requireNonNull(getItem(position)).getDescription());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "CollectionListPagingAdapter: onBindViewHolder: onClick");
-                    manager.beginTransaction()
-                            .replace(R.id.fragment_container, CollectionPhotoFragment.newInstance((int) Objects.requireNonNull(getItem(position)).id))
+                    ((AppCompatActivity)holder.itemView.getContext()).getSupportFragmentManager().getFragments().get(1).getChildFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, CollectionPhotoFragment.newInstance((int) Objects.requireNonNull(getItem(position)).getId()))
                             .addToBackStack(null)
                             .commit();
                 }
             });
-            setFirstPhoto((int) Objects.requireNonNull(getItem(position)).id, holder);
-        } catch (NullPointerException e){
-            Log.d(TAG, "CollectionListPagingAdapter: onBindViewHolder: NullPointerException");
+            Log.d(TAG, "CollectionListPagingAdapter: onBindViewHolder: getItem(position).toString(): " + getItem(position).toString());
+            try {
+                holder.mini_img.setColorFilter(Color.parseColor(
+                        getColorFromId(
+                                (int) Objects.requireNonNull(getItem(position)).getId()
+                        )
+                ));
+            } catch (IllegalArgumentException e){
+                holder.mini_img.setColorFilter(Color.parseColor(
+                        "#000000"
+                ));
+            }
+        } catch (NullPointerException | OutOfMemoryError e ){
+            Log.d(TAG, "CollectionListPagingAdapter: onBindViewHolder: NullPointerException OR OutOfMemoryError");
         }
     }
 
@@ -86,43 +98,38 @@ public class CollectionListPagingAdapter extends PagedListAdapter<Collection, Co
         }
     }
 
-    public void setFirstPhoto(int id, final ViewHolder holder){
-        Log.d(TAG, "CollectionListPagingAdapter: getFirstPhoto: starting");
-        Log.d(TAG, "CollectionListPagingAdapter: getFirstPhoto: id: " + id);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.unsplash.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        APIService apiService = retrofit.create(APIService.class);
-        apiService.getCollectionPhoto(id, CLIENT_ID).enqueue(new Callback<List<Root>>() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onResponse(Call<List<Root>> call, Response<List<Root>> response) {
-                Log.d(TAG, "CollectionListPagingAdapter: onResponse");
-                if(response.isSuccessful() && response.body() != null){
-                    Log.d(TAG, "CollectionListPagingAdapter: onResponse: loadInitial: isSuccessful: " + response.body().size());
-                    Glide.with(holder.itemView.getContext())
-                            .load(response.body().get(0).urls.thumb)
-                            .into(holder.mini_img);
-                } else {
-                    Log.d(TAG, "CollectionListPagingAdapter: onResponse: loadInitial: isNotSuccessful: " + response.toString());
-                    switch(response.code()) {
-                        case 404:
-                            Log.d(TAG, "CollectionListPagingAdapter: onResponse: loadInitial: isNotSuccessful: error 404: page not found");
-                            break;
-                        case 500:
-                            Log.d(TAG, "CollectionListPagingAdapter: onResponse: loadInitial: isNotSuccessful: error 500: error on server");
-                            break;
-                        case 403:
-                            Log.d(TAG, "CollectionListPagingAdapter: onResponse: loadInitial: isNotSuccessful: error 403: have no permissions");
-                    }
-                }
+    public String getColorFromId(int id){
+        Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: id: " + id);
+        String str = String.valueOf(id);
+        Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str.length(): " + str.length());
+        if(str.length() < 7) {
+            switch (str.length()) {
+                case 1:
+                    Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str: " + str);
+                    return "#00000" + str;
+                case 2:
+                    Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str: " + str);
+                    return "#0000" + str;
+                case 3:
+                case 6:
+                    Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str: " + str);
+                    return "#" + str;
+                case 4:
+                    Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str: " + str);
+                    return "#" + str + "00";
+                case 5:
+                    Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str: " + str);
+                    return "#" + str + "0";
+                default:
+                    Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str: " + str);
+                    return "#000000";
             }
-
-            @Override
-            public void onFailure(Call<List<Root>> call, Throwable t) {
-                Log.d(TAG, "CollectionListPagingAdapter: onFailure: loadInitial: " + t.toString());
-            }
-        });
+        } else{
+            int pow = str.length() - 6;
+            id = (int) (id / Math.pow(10, pow));
+            str = String.valueOf(id);
+            Log.d(TAG, "CollectionListPagingAdapter: getColorFromId: str: " + str);
+            return "#" + str;
+        }
     }
 }

@@ -29,13 +29,13 @@ public class DialogInfo extends DialogFragment {
     }
 
     public static DialogInfo newInstance(int height, int width, String description, Root.Urls image) {
-        Log.d(TAG, "DialogInfo: newInstance: args: " + height + width + description + image.full);
+        Log.d(TAG, "DialogInfo: newInstance: args: " + height + width + description + image.getFull());
         Bundle args = new Bundle();
         args.putInt("height", height);
         args.putInt("width", width);
         args.putString("description", description);
-        args.putString("ref", image.full);
-        args.putString("image", image.thumb);
+        args.putString("ref", image.getFull());
+        args.putString("image", image.getThumb());
 
         DialogInfo fragment = new DialogInfo();
         fragment.setArguments(args);

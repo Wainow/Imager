@@ -8,9 +8,7 @@
         android:id="@+id/mini_collection_img"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        app:civ_border_width="2dp"
-        android:src="@color/colorWhite"
-        app:civ_border_color="#FF000000"/>
+        android:src="@color/colorWhite"/>
     <com.task.imager.Custom.TextViewPlus
         android:padding="5dp"
         android:id="@+id/item_title"

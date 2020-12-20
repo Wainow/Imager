@@ -41,7 +41,7 @@ public class PagingAdapter extends PagedListAdapter<Root, PagingAdapter.ViewHold
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         try {
             Glide.with(holder.itemView.getContext())
-                    .load(Objects.requireNonNull(getItem(position)).urls.small)
+                    .load(Objects.requireNonNull(getItem(position)).getUrls().getSmall())
                     .into(holder.imageView);
 
             holder.imageView.setOnClickListener(new View.OnClickListener() {
@@ -57,10 +57,10 @@ public class PagingAdapter extends PagedListAdapter<Root, PagingAdapter.ViewHold
 
     private void getInfo(Root currentRoot, ViewHolder holder) {
         DialogInfo dialogInfo = DialogInfo.newInstance(
-                currentRoot.height,
-                currentRoot.width,
-                currentRoot.description,
-                currentRoot.urls
+                currentRoot.getHeight(),
+                currentRoot.getWidth(),
+                currentRoot.getDescription(),
+                currentRoot.getUrls()
         );
         dialogInfo.show(((AppCompatActivity) holder.itemView.getContext()).getSupportFragmentManager(), "dlg");
     }

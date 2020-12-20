@@ -64,17 +64,7 @@ public class CollectionListFragment extends Fragment {
 
     private void getCollections(){
         // SearchDataSource
-        if(getArguments() != null) {
-            dataSource = new CollectionListDataSource(
-                    getArguments(),
-                    description
-            );
-        } else{
-            dataSource = new CollectionListDataSource(
-                    new Bundle(),
-                    description
-            );
-        }
+        dataSource = new CollectionListDataSource(description);
 
 
 
@@ -100,7 +90,7 @@ public class CollectionListFragment extends Fragment {
             public boolean areContentsTheSame(@NonNull Collection oldItem, @NonNull Collection newItem) {
                 return false;
             }
-        }, getChildFragmentManager());
+        });
         adapter.submitList(pagedList);
 
         // RecyclerView

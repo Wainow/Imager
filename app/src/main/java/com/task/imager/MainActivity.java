@@ -26,10 +26,8 @@ import com.task.imager.model.ImageSearchViewModel;
 import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
 public class MainActivity extends AppCompatActivity{
-        private CustomViewPager pager;
+    private CustomViewPager pager;
     private ImageSearchViewModel model;
-
-        private CollectionListFragment collectionListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +45,6 @@ public class MainActivity extends AppCompatActivity{
         pager.setCurrentItem(1);
         pager.setOffscreenPageLimit(3);
         model = ViewModelProviders.of(this).get(ImageSearchViewModel.class);
-
-        collectionListFragment = CollectionListFragment.newInstance();
     }
 
     @Override
@@ -116,7 +112,7 @@ public class MainActivity extends AppCompatActivity{
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return collectionListFragment;
+                    return CollectionListFragment.newInstance();
                 case 2:
                     return SearchImageFragment.newInstance();
                 default:
@@ -132,12 +128,19 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG, "MainActivity: onBackPressed");
         switch (pager.getCurrentItem()){
             case 0:
-                if (collectionListFragment.getChildFragmentManager().getFragments().size() != 0)
-                    collectionListFragment.getChildFragmentManager().popBackStack();
-                else
-                    pager.setCurrentItem(1);
+                try {
+                    Log.d(TAG, "MainActivity: onBackPressed: getSupportFragmentManager().getFragments().get(1): " + getSupportFragmentManager().getFragments().get(1).getClass());
+                    if (getSupportFragmentManager().getFragments().get(1).getChildFragmentManager().getFragments().size() != 0)
+                        getSupportFragmentManager().getFragments().get(1).getChildFragmentManager().popBackStack();
+                    else
+                        pager.setCurrentItem(1);
+                } catch (IllegalStateException e){
+                    Log.d(TAG, "MainActivity: onBackPressed: IllegalStateException");
+                    super.onBackPressed();
+                }
                 break;
             case 2:
                 pager.setCurrentItem(1);

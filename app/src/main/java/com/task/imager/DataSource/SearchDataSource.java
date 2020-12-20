@@ -51,14 +51,14 @@ public class SearchDataSource extends PositionalDataSource<Root> {
             public void onResponse(Call<Results> call, Response<Results> response) {
                 if(response.isSuccessful() && response.body() != null){
                     t.setVisibility(View.INVISIBLE);
-                    Log.d(TAG, "SearchDataSource: loadInitial: onResponse: isSuccessful: " + response.body().results.size());
-                    if(response.body().results.size() == 0){
+                    Log.d(TAG, "SearchDataSource: loadInitial: onResponse: isSuccessful: " + response.body().getResults().size());
+                    if(response.body().getResults().size() == 0){
                         Log.d(TAG, "SearchDataSource: loadRange: onResponse: isSuccessful: The images are not found");
                         t.setVisibility(View.VISIBLE);
                         t.setText("The images are not found");
-                    } else if(response.body().results.size() < 10)
+                    } else if(response.body().getResults().size() < 10)
                         isLoadRange = false;
-                    List<Root> roots = response.body().results;
+                    List<Root> roots = response.body().getResults();
                     callback.onResult(roots, 0);
                 } else {
                     t.setVisibility(View.VISIBLE);
@@ -103,8 +103,8 @@ public class SearchDataSource extends PositionalDataSource<Root> {
                 public void onResponse(Call<Results> call, Response<Results> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         t.setVisibility(View.INVISIBLE);
-                        Log.d(TAG, "SearchDataSource: loadRange: onResponse: isSuccessful: " + response.body().results.size());
-                        List<Root> roots = response.body().results;
+                        Log.d(TAG, "SearchDataSource: loadRange: onResponse: isSuccessful: " + response.body().getResults().size());
+                        List<Root> roots = response.body().getResults();
                         callback.onResult(roots);
                     } else {
                         t.setVisibility(View.VISIBLE);

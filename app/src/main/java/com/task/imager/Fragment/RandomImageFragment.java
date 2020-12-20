@@ -82,11 +82,11 @@ public class RandomImageFragment extends Fragment implements SwipeRefreshLayout.
             @Override
             public void onResponse(Call<Root> call, Response<Root> response) {
                 if(response.isSuccessful() && getContext() != null && response.body() != null){
-                    Log.d(TAG, "RandomImageFragment: onResponse: isSuccessful: " + response.body().urls.thumb);
+                    Log.d(TAG, "RandomImageFragment: onResponse: isSuccessful: " + response.body().getUrls().getThumb());
                     random_image.setVisibility(View.VISIBLE);
                     currentRoot = response.body();
                         Glide.with(getContext())
-                                .load(currentRoot.urls.small)
+                                .load(currentRoot.getUrls().getSmall())
                                 .into(random_image);
                         mSwipeRefreshLayout.setRefreshing(false);
                 } else {
@@ -116,10 +116,10 @@ public class RandomImageFragment extends Fragment implements SwipeRefreshLayout.
     private void getInfo(Root currentRoot) {
         if(getActivity() != null) {
             DialogInfo dialogInfo = DialogInfo.newInstance(
-                    currentRoot.height,
-                    currentRoot.width,
-                    currentRoot.description,
-                    currentRoot.urls
+                    currentRoot.getHeight(),
+                    currentRoot.getWidth(),
+                    currentRoot.getDescription(),
+                    currentRoot.getUrls()
             );
             dialogInfo.show(getActivity().getSupportFragmentManager(), "dlg");
         }

@@ -24,13 +24,9 @@ import static com.task.imager.Fragment.RandomImageFragment.CLIENT_ID;
 import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
 public class CollectionListDataSource extends PositionalDataSource {
-    private int currentPage;
-    private Bundle bundle;
     private TextViewPlus t;
 
-    public CollectionListDataSource(Bundle bundle, TextViewPlus t) {
-        this.currentPage = bundle.getInt("page");
-        this.bundle = bundle;
+    public CollectionListDataSource( TextViewPlus t) {
         this.t = t;
     }
 
@@ -43,7 +39,7 @@ public class CollectionListDataSource extends PositionalDataSource {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         APIService apiService = retrofit.create(APIService.class);
-        apiService.getCollectionsPage(CLIENT_ID, currentPage).enqueue(new Callback<List<Collection>>() {
+        apiService.getCollectionsPage(CLIENT_ID, 0).enqueue(new Callback<List<Collection>>() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
@@ -78,22 +74,19 @@ public class CollectionListDataSource extends PositionalDataSource {
                 t.setText("Unable to resolve host \"api.unsplash.com\"");
             }
         });
-        Log.d(TAG, "CollectionListDataSource: currentPage: " + currentPage);
-        bundle.putInt("page", currentPage);
     }
 
     @Override
     public void loadRange(@NonNull LoadRangeParams params, @NonNull final LoadRangeCallback callback) {
-        Log.d(TAG, "SearchDataSource: loadInitial, requestedStartPosition = " + params.startPosition +
+        Log.d(TAG, "SearchDataSource: loadRange, requestedStartPosition = " + params.startPosition +
                 ", requestedLoadSize = " + params.loadSize);
-        currentPage = getPage(params.startPosition);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.unsplash.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         APIService apiService = retrofit.create(APIService.class);
-        apiService.getCollectionsPage(CLIENT_ID, currentPage).enqueue(new Callback<List<Collection>>() {
+        apiService.getCollectionsPage(CLIENT_ID, getPage(params.startPosition)).enqueue(new Callback<List<Collection>>() {
             @Override
             public void onResponse(Call<List<Collection>> call, Response<List<Collection>> response) {
                 if(response.isSuccessful() && response.body() != null){
@@ -119,12 +112,10 @@ public class CollectionListDataSource extends PositionalDataSource {
                 Log.d(TAG, "CollectionListDataSource: loadRange: onFailure: " + t.toString());
             }
         });
-        Log.d(TAG, "CollectionListDataSource: currentPage: " + currentPage);
-        bundle.putInt("page", currentPage);
     }
 
     public static int getPage(int startPosition) {
-        return (startPosition / 10) + 1;
+        return (startPosition / 10);
     }
 
 

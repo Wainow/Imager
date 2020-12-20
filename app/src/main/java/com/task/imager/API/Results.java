@@ -5,7 +5,16 @@ import java.util.ArrayList;
 public class Results {
     private float total;
     private float total_pages;
-    public ArrayList<Root> results = new ArrayList<>();
+
+    public ArrayList<Root> getResults() {
+        return results;
+    }
+
+    public void setResults(ArrayList<Root> results) {
+        this.results = results;
+    }
+
+    private ArrayList<Root> results = new ArrayList<>();
 
 
     // Getter Methods
