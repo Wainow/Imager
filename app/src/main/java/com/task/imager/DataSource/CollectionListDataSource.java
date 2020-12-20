@@ -115,7 +115,7 @@ public class CollectionListDataSource extends PositionalDataSource {
     }
 
     public static int getPage(int startPosition) {
-        return (startPosition / 10);
+        return (startPosition / 10) + 1;
     }
 
 
