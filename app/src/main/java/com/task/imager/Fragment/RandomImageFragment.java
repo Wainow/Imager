@@ -37,10 +37,7 @@ public class RandomImageFragment extends Fragment implements SwipeRefreshLayout.
     }
 
     public static RandomImageFragment newInstance() {
-        RandomImageFragment fragment = new RandomImageFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        return new RandomImageFragment();
     }
 
     @Override

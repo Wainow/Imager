@@ -23,6 +23,8 @@ import com.task.imager.Fragment.RandomImageFragment;
 import com.task.imager.Fragment.SearchImageFragment;
 import com.task.imager.model.ImageSearchViewModel;
 
+import org.jetbrains.annotations.NotNull;
+
 import static com.task.imager.Fragment.RandomImageFragment.TAG;
 
 public class MainActivity extends AppCompatActivity{
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity{
             super(fm);
         }
 
+        @NotNull
         @Override
         public Fragment getItem(int position) {
             switch (position) {
@@ -116,7 +119,7 @@ public class MainActivity extends AppCompatActivity{
                 case 2:
                     return SearchImageFragment.newInstance();
                 default:
-                    return new RandomImageFragment();
+                    return RandomImageFragment.newInstance();
             }
         }
 
