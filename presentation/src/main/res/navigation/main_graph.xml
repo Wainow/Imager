@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/RandomImageFragment">
+    <fragment
+        android:id="@+id/RandomImageFragment"
+        android:name="com.task.imager.fragment.RandomImageFragment"
+        android:label="RandomImageFragment"
+        tools:layout="@layout/fragment_random_image">
+
+        <action
+            android:id="@+id/action_RandomImageFragment_to_ImageSearchFragment"
+            app:destination="@id/ImageSearchFragment"/>
+        <action
+            android:id="@+id/action_RandomImageFragment_to_CollectionsFragment"
+            app:destination="@id/CollectionsFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/ImageSearchFragment"
+        android:name="com.task.imager.fragment.SearchImageFragment"
+        android:label="ImageSearchFragment"
+        tools:layout="@layout/fragment_image_search">
+
+        <action
+            android:id="@+id/action_ImageSearchFragment_to_RandomImageFragment"
+            app:destination="@id/RandomImageFragment"/>
+        <action
+            android:id="@+id/action_ImageSearchFragment_to_ImageSearchFragment"
+            app:destination="@id/ImageSearchFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/CollectionsFragment"
+        android:name="com.task.imager.fragment.CollectionListFragment"
+        android:label="CollectionsFragment"
+        tools:layout="@layout/fragment_collections">
+    </fragment>
+</navigation>
